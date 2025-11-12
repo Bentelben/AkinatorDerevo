@@ -149,9 +149,10 @@ static bool DerevoDumpPreorderTravesalFunction(derevo_node_t **node, void *rawAr
 }
 
 static bool DerevoDumpInorderTravesalFunction(derevo_node_t **node, void *args) {
-    FILE *file = (FILE *)args;
+    FILE *const file = (FILE *)args;
     if ((*node)->left == NULL)
-        fprintf(file, "() ");
+        fprintf(file, "()");
+    fprintf(file, " ");
     if ((*node)->right == NULL)
         fprintf(file, "()");
     return true;
