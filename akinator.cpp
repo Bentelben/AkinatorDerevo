@@ -143,7 +143,8 @@ static int LoadNode(derevo_t *derevo, char *const text, size_t *const index, der
 
     SkipSpaces(text, index);
 
-    (*index)++; // (
+    if (text[(*index)++] != '(')
+        return 0;
 
     SkipSpaces(text, index);
 
@@ -171,7 +172,8 @@ static int LoadNode(derevo_t *derevo, char *const text, size_t *const index, der
 
     SkipSpaces(text, index);
 
-    (*index)++; // )
+    if (text[(*index)++] != ')')
+        return 0;
 
     return 1;
 }
