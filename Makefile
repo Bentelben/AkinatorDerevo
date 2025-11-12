@@ -6,7 +6,7 @@ COMPILER_FLAGS := $(DED_FLAGS) $(MY_FLAGS)
 
 BUILD_DIR := build
 
-sources := main derevo akinator logger
+sources := main derevo akinator logger text_utils
 
 .PHONY: build clean
 

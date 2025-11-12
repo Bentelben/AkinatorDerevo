@@ -1,10 +1,14 @@
 #include "akinator.h"
 
 #include "derevo.h"
+#include "text_utils.h"
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
+//#include <stdarg.h>
+#include <ctype.h>
 
 static bool DumpValue(derevo_node_t **const node, void *const args) {
     FILE *const file = (FILE *)args;
@@ -118,4 +122,63 @@ void AkinatorSaveData(derevo_t *const derevo) {
     fclose(file);
 }
 
-// TODO reading tree from file
+//static void ScanText(char *const text, size_t *const position, char const *const spec, ...) {
+//    int bytes_read = 0; // ScanText(text, pos, "%[^\"]", buffer)
+//    vsscanf(text, spec // add %n 
+//}
+
+static void SkipSpaces(char *const text, size_t *const index) {
+    while (isspace(text[*index]))
+        (*index)++;
+}
+
+static int LoadNode(derevo_t *derevo, char *const text, size_t *const index, derevo_node_t **destination) {
+    assert(derevo);
+    assert(text);
+    assert(index);
+    assert(destination);
+    
+    char buffer[2048];
+    int bytesRead = 0;
+
+    SkipSpaces(text, index);
+
+    (*index)++; // (
+
+    SkipSpaces(text, index);
+
+    if (text[*index] == ')') {
+        (*index)++;
+        return 1;
+    }
+
+    if (sscanf(text + *index, "\"%[^\"]\"%n", buffer, &bytesRead) != 1)
+        return 0;
+
+    (*index) += (size_t)bytesRead;
+    SkipSpaces(text, index);
+
+    if (DerevoPushNode(derevo, destination, strdup(buffer)) == NULL)
+        return 0;
+    
+    if (LoadNode(derevo, text, index, &(*destination)->left) != 1)
+        return 0;
+
+    SkipSpaces(text, index);
+
+    if (LoadNode(derevo, text, index, &(*destination)->right) != 1)
+        return 0;
+
+    SkipSpaces(text, index);
+
+    (*index)++; // )
+
+    return 1;
+}
+
+int AkinatorLoadData(derevo_t *const derevo, char *const filename) {
+    char *const text = ReadFile(filename);
+    size_t index = 0;
+
+    return LoadNode(derevo, text, &index, &derevo->head);
+}

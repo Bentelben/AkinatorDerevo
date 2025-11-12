@@ -8,7 +8,9 @@ int main() {
     derevo_t *const derevo = &derevoObject;
     AkinatorInitialize(derevo);
 
-    DerevoPushNode(derevo, &derevo->head, strdup("Неизвестно кто"));
+    AkinatorLoadData(derevo, "data.txt");
+    DerevoLog(derevo);
+    //DerevoPushNode(derevo, &derevo->head, strdup("Неизвестно кто"));
     while (1) {
         printf("Загадай персонажа и ответь на вопрос\n");
         bool isCorrect = false;
