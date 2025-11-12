@@ -32,3 +32,8 @@ char *ReadFile(char const *const filename) {
     fclose(file);
     return text;
 }
+
+void ClearBuffer() {
+    scanf("%*[^\n]");
+    getchar();
+}

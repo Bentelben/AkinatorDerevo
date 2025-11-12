@@ -4,5 +4,6 @@
 #include <stdio.h>
 
 char *ReadFile(char const *file);
+void ClearBuffer();
 
 #endif

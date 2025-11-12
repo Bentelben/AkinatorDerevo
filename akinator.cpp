@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-//#include <stdarg.h>
 #include <ctype.h>
 
 static bool DumpValue(derevo_node_t **const node, void *const args) {
@@ -47,7 +46,10 @@ static bool GuessingPreorder(derevo_node_t **node, void *args) {
     printf("Вопрос: %s?\n", (*node)->value);
     printf("1. Да\n2. Нет\n");
     int res = 2;
-    scanf("%d", &res); // TODO check
+    if (scanf("%d", &res) != 1) {
+        ClearBuffer();
+        res = 1; 
+    }
 
     bool *const answer = (bool *)args;
     *answer = res == 1;
@@ -71,10 +73,7 @@ derevo_node_t **AkinatorRunGuessing(derevo_t *const derevo, bool *const answer) 
     );
 }
 
-static void ClearBuffer() {
-    scanf("%*[^\n]");
-    getchar();
-}
+
 
 static char *ReadLine() {
     char *buffer = NULL;
@@ -121,11 +120,6 @@ void AkinatorSaveData(derevo_t *const derevo) {
     DerevoDump(derevo, file);
     fclose(file);
 }
-
-//static void ScanText(char *const text, size_t *const position, char const *const spec, ...) {
-//    int bytes_read = 0; // ScanText(text, pos, "%[^\"]", buffer)
-//    vsscanf(text, spec // add %n 
-//}
 
 static void SkipSpaces(char *const text, size_t *const index) {
     while (isspace(text[*index]))
@@ -183,4 +177,71 @@ int AkinatorLoadData(derevo_t *const derevo, char *const filename) {
     size_t index = 0;
 
     return LoadNode(derevo, text, &index, &derevo->head);
+}
+
+struct definition_travesal_args {
+    bool isFound;
+    derevo_node_t **needle;
+    derevo_node_t *last;
+};
+
+static bool DefinitionPreorder(derevo_node_t **const node, void *const rawArgs) {
+    definition_travesal_args *args = (definition_travesal_args *)rawArgs;
+    if (node == args->needle)
+        args->isFound = true;
+    
+    return true;
+}
+
+static bool DefinitionPostorder(derevo_node_t **const node, void *const rawArgs) {
+    definition_travesal_args *args = (definition_travesal_args *)rawArgs;
+    if (args->isFound) {
+        if (args->last != NULL) {
+            assert((*node)->left);
+            assert((*node)->right);
+
+            printf(" - ");
+            if ((*node)->right == args->last)
+                printf("не ");
+            printf("%s\n", (*node)->value);
+        }
+        args->last = *node;
+    }
+    return true;
+}
+
+static bool DefinitionSelectorLeft(derevo_node_t **node, void *const args) {
+    if ((*node)->left == NULL)
+        return false;
+
+    bool *isFound = (bool *)args;
+    return !(*isFound);
+}
+
+static bool DefinitionSelectorRight(derevo_node_t **node, void *const args) {
+    if ((*node)->right == NULL)
+        return false;
+
+    bool *isFound = (bool *)args;
+    return !(*isFound);
+}
+
+void AkinatorGetDefinition(derevo_t *const derevo, derevo_node_t **const node) {
+    printf("Определение %s:\n", (*node)->value);
+
+    definition_travesal_args args = {
+        false,
+        node,
+        NULL
+    };
+
+    DerevoDoTravesal(
+        &derevo->head,
+        DefinitionSelectorLeft, &args.isFound,
+        DefinitionSelectorRight, &args.isFound,
+        DefinitionPreorder, &args,
+        NULL, NULL,
+        DefinitionPostorder, &args
+    );
+    printf("\n");
 }

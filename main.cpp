@@ -18,8 +18,11 @@ int main() {
         if (!isCorrect) {
             AkinatorAppendQuestion(derevo, result);
             AkinatorSaveData(derevo);
-        } else
+        } else {
             printf("Элементарно!\n");
+            AkinatorGetDefinition(derevo, result);
+        }
+
         printf("\n\n");
     }
 
