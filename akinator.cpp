@@ -14,7 +14,7 @@ static bool DumpValue(derevo_node_t **const node, void *const args) {
 
 static bool WriteNodeGraphData(derevo_node_t **const node, void *const args) {
     FILE *const file = (FILE *)args;
-    fprintf(file, "node_%p [shape=record, label=\"{ node %p | value = \\\"%s\\\" | { <left> да | <right> нет } }\"]", *node, *node, (*node)->value);
+    fprintf(file, "node_%p [shape=record, label=\"{%s?| { <left> да | <right> нет } }\"]\n", *node, (*node)->value);
     if ((*node)->left)
         fprintf(file, "node_%p:<left> -> node_%p\n", *node, (*node)->left);
     if ((*node)->right)
